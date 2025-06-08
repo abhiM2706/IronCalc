@@ -1,4 +1,4 @@
-import type { Model } from "@ironcalc/wasm";
+import type { Model, WorksheetProperties } from "@ironcalc/wasm";
 import { type PointerEvent, type RefObject, useCallback, useRef } from "react";
 import { isInReferenceMode } from "../Editor/util";
 import type WorksheetCanvas from "../WorksheetCanvas/worksheetCanvas";
@@ -82,7 +82,7 @@ const usePointer = (options: PointerSettings): PointerEvents => {
         range.rowEnd = cell.row;
         range.columnEnd = cell.column;
 
-        const sheetNames = model.getWorksheetsProperties().map((s) => s.name);
+        const sheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
 
         editingCell.referencedRange.str = rangeToStr(
           range,
@@ -208,7 +208,7 @@ const usePointer = (options: PointerSettings): PointerEvents => {
             };
             const sheetNames = model
               .getWorksheetsProperties()
-              .map((s) => s.name);
+              .map((s: WorksheetProperties) => s.name);
             editingCell.referencedRange = {
               range,
               str: rangeToStr(

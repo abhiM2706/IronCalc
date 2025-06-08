@@ -3,6 +3,8 @@ import type {
   ClipboardCell,
   Model,
   WorksheetProperties,
+  HorizontalAlignment,
+  VerticalAlignment,
 } from "@ironcalc/wasm";
 import { styled } from "@mui/material/styles";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,6 +30,10 @@ import {
 } from "../util";
 import type { WorkbookState } from "../workbookState";
 import useKeyboardNavigation from "./useKeyboardNavigation";
+
+interface ClipboardData {
+  data: Map<number, Map<number, ClipboardCell>>;
+}
 
 const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
   const { model, workbookState } = props;
@@ -104,12 +110,12 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
     updateRangeStyle("font.strike", `${value}`);
   };
 
-  const onToggleHorizontalAlign = (value: string) => {
-    updateRangeStyle("alignment.horizontal", value);
+  const onToggleHorizontalAlign = (value: HorizontalAlignment) => {
+    updateRangeStyle("alignment.horizontal", value.toString());
   };
 
-  const onToggleVerticalAlign = (value: string) => {
-    updateRangeStyle("alignment.vertical", value);
+  const onToggleVerticalAlign = (value: VerticalAlignment) => {
+    updateRangeStyle("alignment.vertical", value.toString());
   };
 
   const onToggleWrapText = (value: boolean) => {
@@ -332,13 +338,10 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
 
   const cellAddress = useCallback(() => {
     const {
-      row,
-      column,
       range: [rowStart, columnStart, rowEnd, columnEnd],
     } = model.getSelectedView();
     return getCellAddress(
-      { rowStart, rowEnd, columnStart, columnEnd },
-      { row, column },
+      { rowStart, rowEnd, columnStart, columnEnd }
     );
   }, [model]);
 
@@ -457,11 +460,11 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
             [column: number]: ClipboardCell;
           };
         } = {};
-        data.data.forEach((value, row) => {
+        data.data.forEach((value: Map<number, ClipboardCell>, row: number) => {
           const rowData: {
             [column: number]: ClipboardCell;
           } = {};
-          value.forEach((val, column) => {
+          value.forEach((val: ClipboardCell, column: number) => {
             rowData[column] = val;
           });
           sheetData[row] = rowData;
@@ -495,11 +498,11 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
             [column: number]: ClipboardCell;
           };
         } = {};
-        data.data.forEach((value, row) => {
+        data.data.forEach((value: Map<number, ClipboardCell>, row: number) => {
           const rowData: {
             [column: number]: ClipboardCell;
           } = {};
-          value.forEach((val, column) => {
+          value.forEach((val: ClipboardCell, column: number) => {
             rowData[column] = val;
           });
           sheetData[row] = rowData;
@@ -673,7 +676,7 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
             setRedrawId((id) => id + 1);
           },
           selectedArea: () => {
-            const worksheetNames = worksheets.map((s) => s.name);
+            const worksheetNames = worksheets.map((s: WorksheetProperties) => s.name);
             const selectedView = model.getSelectedView();
 
             return getFullRangeToString(selectedView, worksheetNames);

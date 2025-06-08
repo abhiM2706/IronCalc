@@ -1,12 +1,65 @@
 import {
   type Model,
-  type Range,
-  type Reference,
-  type TokenType,
+  type WorksheetProperties,
   getTokens,
 } from "@ironcalc/wasm";
 import type { JSX } from "react";
 import type { ActiveRange } from "../workbookState";
+
+interface Reference {
+  Reference: {
+    sheet: string | null;
+    row: number;
+    column: number;
+    absolute_column: boolean;
+    absolute_row: boolean;
+  };
+}
+
+interface Range {
+  Range: {
+    sheet: string | null;
+    left: {
+      row: number;
+      column: number;
+      absolute_column: boolean;
+      absolute_row: boolean;
+    };
+    right: {
+      row: number;
+      column: number;
+      absolute_column: boolean;
+      absolute_row: boolean;
+    };
+  };
+}
+
+type TokenType =
+  | "Illegal"
+  | "Eof"
+  | { Ident: string }
+  | { String: string }
+  | { Boolean: boolean }
+  | { Number: number }
+  | { ERROR: string }
+  | { COMPARE: string }
+  | { SUM: string }
+  | { PRODUCT: string }
+  | "POWER"
+  | "LPAREN"
+  | "RPAREN"
+  | "COLON"
+  | "SEMICOLON"
+  | "LBRACKET"
+  | "RBRACKET"
+  | "LBRACE"
+  | "RBRACE"
+  | "COMMA"
+  | "BANG"
+  | "PERCENT"
+  | "AND"
+  | Reference
+  | Range;
 
 function sliceString(
   text: string,
@@ -123,7 +176,7 @@ function getFormulaHTML(
     const tokenCount = tokens.length;
     const usedColors: Record<string, string> = {};
     const sheet = model.getSelectedSheet();
-    const sheetList = model.getWorksheetsProperties().map((s) => s.name);
+    const sheetList = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
     for (let index = 0; index < tokenCount; index += 1) {
       const { token, start, end } = tokens[index];
       if (tokenIsReferenceType(token)) {

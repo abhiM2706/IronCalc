@@ -30,29 +30,34 @@ export const isNavigationKey = (key: string): key is NavigationKey =>
     key,
   );
 
-export const getCellAddress = (selectedArea: Area, selectedCell: Cell) => {
+export function getCellAddress(
+  range: { rowStart: number; rowEnd: number; columnStart: number; columnEnd: number },
+): string {
+  const rowStart = range.rowStart;
+  const columnStart = range.columnStart;
+  const rowEnd = range.rowEnd;
+  const columnEnd = range.columnEnd;
+
   const isSingleCell =
-    selectedArea.rowStart === selectedArea.rowEnd &&
-    selectedArea.columnEnd === selectedArea.columnStart;
+    rowStart === rowEnd &&
+    columnEnd === columnStart;
 
   if (isSingleCell) {
-    return `${columnNameFromNumber(selectedCell.column)}${selectedCell.row}`;
+    return `${columnNameFromNumber(columnStart)}${rowStart}`;
   }
-  if (selectedArea.rowStart === 1 && selectedArea.rowEnd === LAST_ROW) {
-    return `${columnNameFromNumber(selectedArea.columnStart)}:${columnNameFromNumber(
-      selectedArea.columnEnd,
+  if (rowStart === 1 && rowEnd === LAST_ROW) {
+    return `${columnNameFromNumber(columnStart)}:${columnNameFromNumber(
+      columnEnd,
     )}`;
   }
   if (
-    selectedArea.columnStart === 1 &&
-    selectedArea.columnEnd === LAST_COLUMN
+    columnStart === 1 &&
+    columnEnd === LAST_COLUMN
   ) {
-    return `${selectedArea.rowStart}:${selectedArea.rowEnd}`;
+    return `${rowStart}:${rowEnd}`;
   }
-  return `${columnNameFromNumber(selectedArea.columnStart)}${
-    selectedArea.rowStart
-  }:${columnNameFromNumber(selectedArea.columnEnd)}${selectedArea.rowEnd}`;
-};
+  return `${columnNameFromNumber(columnStart)}${rowStart}:${columnNameFromNumber(columnEnd)}${rowEnd}`;
+}
 
 export function rangeToStr(
   range: {
@@ -78,7 +83,7 @@ export function rangeToStr(
 // Returns the full range of the selected view as a string in absolute form
 // e.g. 'Sheet1!$A$1:$B$2' or 'Sheet1!$A$1'
 export function getFullRangeToString(
-  selectedView: SelectedView,
+  selectedView: { sheet: number; range: [number, number, number, number] },
   worksheetNames: string[],
 ): string {
   const [rowStart, columnStart, rowEnd, columnEnd] = selectedView.range;

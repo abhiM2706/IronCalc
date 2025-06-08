@@ -1,4 +1,4 @@
-import { type BorderOptions, BorderStyle, BorderType } from "@ironcalc/wasm";
+import { type BorderOptions, BorderStyle, BorderType, BorderOptions as WasmBorderOptions } from "@ironcalc/wasm";
 import Popover, { type PopoverOrigin } from "@mui/material/Popover";
 import { styled } from "@mui/material/styles";
 import {
@@ -49,11 +49,8 @@ const BorderPicker = (properties: BorderPickerProps) => {
     if (!borderSelected) {
       return;
     }
-    properties.onChange({
-      color: borderColor,
-      style: borderStyle,
-      border: borderSelected,
-    });
+    const options = new WasmBorderOptions(borderColor, borderStyle, borderSelected);
+    properties.onChange(options);
   }, [borderColor, borderStyle, borderSelected]);
 
   const onClose = properties.onClose;

@@ -4,6 +4,9 @@ use wasm_bindgen::{
     JsValue,
 };
 
+mod types;
+pub use types::*;
+
 use ironcalc_base::{
     expressions::{lexer::util::get_tokens as tokenizer, types::Area, utils::number_to_column},
     types::{CellType, Style},

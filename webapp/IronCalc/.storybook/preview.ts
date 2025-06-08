@@ -1,4 +1,5 @@
 import type { Preview } from "@storybook/react";
+import { init } from "../src/index";
 
 const preview: Preview = {
   parameters: {
@@ -9,6 +10,12 @@ const preview: Preview = {
       },
     },
   },
+  loaders: [
+    async () => {
+      await init();
+      return {};
+    },
+  ],
 };
 
 export default preview;

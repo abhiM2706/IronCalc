@@ -1,4 +1,4 @@
-import type { Model } from "@ironcalc/wasm";
+import type { Model, WorksheetProperties } from "@ironcalc/wasm";
 import { type KeyboardEvent, type RefObject, useCallback } from "react";
 import { rangeToStr } from "../util";
 import type { WorkbookState } from "../workbookState";
@@ -102,9 +102,7 @@ export const useKeyDown = (
           if (cell.referencedRange) {
             // There is already a reference range we move it to the right
             // (or expand if shift is pressed)
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = cell.referencedRange.range;
             if (shiftKey) {
               range.columnEnd += 1;
@@ -117,7 +115,7 @@ export const useKeyDown = (
             }
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -126,9 +124,7 @@ export const useKeyDown = (
           if (isInReferenceMode(cell.text, cell.cursorStart)) {
             // there is not a referenced Range but we are in reference mode
             // we select the next cell
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = {
               sheet: cell.sheet,
               rowStart: cell.row,
@@ -138,7 +134,7 @@ export const useKeyDown = (
             };
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -170,9 +166,7 @@ export const useKeyDown = (
           if (cell.referencedRange) {
             // There is already a reference range we move it to the right
             // (or expand if shift is pressed)
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = cell.referencedRange.range;
             if (shiftKey) {
               range.columnEnd -= 1;
@@ -185,7 +179,7 @@ export const useKeyDown = (
             }
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -194,9 +188,7 @@ export const useKeyDown = (
           if (isInReferenceMode(cell.text, cell.cursorStart)) {
             // there is not a referenced Range but we are in reference mode
             // we select the next cell
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = {
               sheet: cell.sheet,
               rowStart: cell.row,
@@ -206,7 +198,7 @@ export const useKeyDown = (
             };
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -238,9 +230,7 @@ export const useKeyDown = (
           if (cell.referencedRange) {
             // There is already a reference range we move it to the right
             // (or expand if shift is pressed)
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = cell.referencedRange.range;
             if (shiftKey) {
               if (range.rowEnd > range.rowStart) {
@@ -258,7 +248,7 @@ export const useKeyDown = (
             }
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -267,9 +257,7 @@ export const useKeyDown = (
           if (isInReferenceMode(cell.text, cell.cursorStart)) {
             // there is not a referenced Range but we are in reference mode
             // we select the next cell
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = {
               sheet: cell.sheet,
               rowStart: cell.row - 1,
@@ -279,7 +267,7 @@ export const useKeyDown = (
             };
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -311,9 +299,7 @@ export const useKeyDown = (
           if (cell.referencedRange) {
             // There is already a reference range we move it to the right
             // (or expand if shift is pressed)
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = cell.referencedRange.range;
             if (shiftKey) {
               range.rowEnd += 1;
@@ -327,7 +313,7 @@ export const useKeyDown = (
             }
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();
@@ -336,9 +322,7 @@ export const useKeyDown = (
           if (isInReferenceMode(cell.text, cell.cursorStart)) {
             // there is not a referenced Range but we are in reference mode
             // we select the next cell
-            const sheetNames = model
-              .getWorksheetsProperties()
-              .map((s) => s.name);
+            const worksheetNames = model.getWorksheetsProperties().map((s: WorksheetProperties) => s.name);
             const range = {
               sheet: cell.sheet,
               rowStart: cell.row + 1,
@@ -348,7 +332,7 @@ export const useKeyDown = (
             };
             cell.referencedRange = {
               range,
-              str: rangeToStr(range, cell.sheet, sheetNames[range.sheet]),
+              str: rangeToStr(range, cell.sheet, worksheetNames[range.sheet]),
             };
             workbookState.setEditingCell(cell);
             onTextUpdated();

@@ -1,6 +1,6 @@
 import type {} from "@emotion/styled";
-import type {
-  BorderOptions,
+import {
+  type BorderOptions,
   HorizontalAlignment,
   VerticalAlignment,
 } from "@ironcalc/wasm";
@@ -63,8 +63,8 @@ type ToolbarProperties = {
   onToggleBold: (v: boolean) => void;
   onToggleItalic: (v: boolean) => void;
   onToggleStrike: (v: boolean) => void;
-  onToggleHorizontalAlign: (v: string) => void;
-  onToggleVerticalAlign: (v: string) => void;
+  onToggleHorizontalAlign: (v: HorizontalAlignment) => void;
+  onToggleVerticalAlign: (v: VerticalAlignment) => void;
   onToggleWrapText: (v: boolean) => void;
   onCopyStyles: () => void;
   onTextColorPicked: (hex: string) => void;
@@ -305,10 +305,12 @@ function Toolbar(properties: ToolbarProperties) {
       <Divider />
       <StyledButton
         type="button"
-        $pressed={properties.horizontalAlign === "left"}
+        $pressed={properties.horizontalAlign === HorizontalAlignment.Left}
         onClick={() =>
           properties.onToggleHorizontalAlign(
-            properties.horizontalAlign === "left" ? "general" : "left",
+            properties.horizontalAlign === HorizontalAlignment.Left 
+              ? HorizontalAlignment.General 
+              : HorizontalAlignment.Left,
           )
         }
         disabled={!canEdit}
@@ -318,10 +320,12 @@ function Toolbar(properties: ToolbarProperties) {
       </StyledButton>
       <StyledButton
         type="button"
-        $pressed={properties.horizontalAlign === "center"}
+        $pressed={properties.horizontalAlign === HorizontalAlignment.Center}
         onClick={() =>
           properties.onToggleHorizontalAlign(
-            properties.horizontalAlign === "center" ? "general" : "center",
+            properties.horizontalAlign === HorizontalAlignment.Center 
+              ? HorizontalAlignment.General 
+              : HorizontalAlignment.Center,
           )
         }
         disabled={!canEdit}
@@ -331,10 +335,12 @@ function Toolbar(properties: ToolbarProperties) {
       </StyledButton>
       <StyledButton
         type="button"
-        $pressed={properties.horizontalAlign === "right"}
+        $pressed={properties.horizontalAlign === HorizontalAlignment.Right}
         onClick={() =>
           properties.onToggleHorizontalAlign(
-            properties.horizontalAlign === "right" ? "general" : "right",
+            properties.horizontalAlign === HorizontalAlignment.Right 
+              ? HorizontalAlignment.General 
+              : HorizontalAlignment.Right,
           )
         }
         disabled={!canEdit}
@@ -344,8 +350,8 @@ function Toolbar(properties: ToolbarProperties) {
       </StyledButton>
       <StyledButton
         type="button"
-        $pressed={properties.verticalAlign === "top"}
-        onClick={() => properties.onToggleVerticalAlign("top")}
+        $pressed={properties.verticalAlign === VerticalAlignment.Top}
+        onClick={() => properties.onToggleVerticalAlign(VerticalAlignment.Top)}
         disabled={!canEdit}
         title={t("toolbar.vertical_align_top")}
       >
@@ -353,8 +359,8 @@ function Toolbar(properties: ToolbarProperties) {
       </StyledButton>
       <StyledButton
         type="button"
-        $pressed={properties.verticalAlign === "center"}
-        onClick={() => properties.onToggleVerticalAlign("center")}
+        $pressed={properties.verticalAlign === VerticalAlignment.Center}
+        onClick={() => properties.onToggleVerticalAlign(VerticalAlignment.Center)}
         disabled={!canEdit}
         title={t("toolbar.vertical_align_middle")}
       >
@@ -362,8 +368,8 @@ function Toolbar(properties: ToolbarProperties) {
       </StyledButton>
       <StyledButton
         type="button"
-        $pressed={properties.verticalAlign === "bottom"}
-        onClick={() => properties.onToggleVerticalAlign("bottom")}
+        $pressed={properties.verticalAlign === VerticalAlignment.Bottom}
+        onClick={() => properties.onToggleVerticalAlign(VerticalAlignment.Bottom)}
         disabled={!canEdit}
         title={t("toolbar.vertical_align_bottom")}
       >

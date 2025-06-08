@@ -1,4 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -12,6 +14,12 @@ const config: StorybookConfig = {
     options: {},
   },
   viteFinal: (config) => {
+    if (!config.plugins) {
+      config.plugins = [];
+    }
+    config.plugins.push(wasm());
+    config.plugins.push(topLevelAwait());
+
     if (!config.server) {
       config.server = {};
     }
@@ -19,6 +27,13 @@ const config: StorybookConfig = {
       config.server.fs = {};
     }
     config.server.fs.allow = ["../.."];
+
+    // Add WASM support
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      exclude: ["@ironcalc/wasm"],
+    };
+
     return config;
   }
 };

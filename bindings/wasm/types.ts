@@ -138,6 +138,7 @@ export interface BorderOptions {
   color: string;
   style: BorderStyle;
   border: BorderType;
+  free(): void;
 }
 
 export enum BorderStyle {
