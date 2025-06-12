@@ -22,6 +22,53 @@ export const useKeyDown = (
       const { key, shiftKey, altKey } = event;
       const textarea = textareaRef.current;
       const cell = workbookState.getEditingCell();
+      const suggestionState = workbookState.getFunctionSuggestions();
+      
+      if (suggestionState.isActive) {
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          workbookState.updateFunctionSuggestionsSelection('down');
+          return;
+        }
+        
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          workbookState.updateFunctionSuggestionsSelection('up');
+          return;
+        }
+        
+        if (event.key === 'Enter' || event.key === 'Tab') {
+          event.preventDefault();
+          const selectedSuggestion = workbookState.getSelectedFunctionSuggestion();
+          if (selectedSuggestion) {
+            workbookState.insertFunctionSuggestion(selectedSuggestion);
+            
+            // Get the updated cell state
+            const cell = workbookState.getEditingCell();
+            if (cell && textareaRef.current) {
+              // Update the textarea value
+              textareaRef.current.value = cell.text;
+              
+              // Set the cursor position
+              textareaRef.current.setSelectionRange(cell.cursorStart, cell.cursorEnd);
+              
+              // Ensure focus is maintained
+              textareaRef.current.focus();
+              
+              // Trigger any necessary updates
+              onTextUpdated();
+            }
+          }
+          return;
+        }
+        
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          workbookState.deactivateFunctionSuggestions();
+          return;
+        }
+      }
+
       if (!textarea || !cell) {
         return;
       }

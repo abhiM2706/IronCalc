@@ -87,11 +87,24 @@ export interface EditingCell {
 // Those are styles that are copied
 type AreaStyles = CellStyle[][];
 
+export interface FunctionSuggestion {
+  name: string;
+  selected: boolean;
+}
+
+export interface FunctionSuggestionsState {
+  isActive: boolean;
+  suggestions: string[];
+  selectedIndex: number;
+  triggerPosition: { x: number; y: number };
+}
+
 export class WorkbookState {
   private extendToArea: Area | null;
   private copyStyles: AreaStyles | null;
   private cell: EditingCell | null;
   private cutRange: CutRange | null;
+  private functionSuggestions: FunctionSuggestionsState;
 
   constructor() {
     // the extendTo area is the area we are covering
@@ -99,6 +112,12 @@ export class WorkbookState {
     this.copyStyles = null;
     this.cell = null;
     this.cutRange = null;
+    this.functionSuggestions = {
+      isActive: false,
+      suggestions: [],
+      selectedIndex: 0,
+      triggerPosition: { x: 0, y: 0 }
+    };
   }
 
   getExtendToArea(): Area | null {
@@ -176,5 +195,101 @@ export class WorkbookState {
 
   getCutRange(): CutRange | null {
     return this.cutRange;
+  }
+
+  getFunctionSuggestions(): FunctionSuggestionsState {
+    return this.functionSuggestions;
+  }
+
+  setFunctionSuggestions(suggestions: FunctionSuggestionsState): void {
+    this.functionSuggestions = suggestions;
+  }
+
+  activateFunctionSuggestions(suggestions: string[], position: { x: number; y: number }): void {
+    this.functionSuggestions = {
+      isActive: true,
+      suggestions,
+      selectedIndex: 0,
+      triggerPosition: position
+    };
+  }
+
+  deactivateFunctionSuggestions(): void {
+    this.functionSuggestions = {
+      isActive: false,
+      suggestions: [],
+      selectedIndex: 0,
+      triggerPosition: { x: 0, y: 0 }
+    };
+  }
+
+  updateFunctionSuggestionsSelection(direction: 'up' | 'down'): void {
+    if (!this.functionSuggestions.isActive || this.functionSuggestions.suggestions.length === 0) {
+      return;
+    }
+
+    const { suggestions, selectedIndex } = this.functionSuggestions;
+    let newIndex = selectedIndex;
+
+    if (direction === 'down') {
+      newIndex = (selectedIndex + 1) % suggestions.length;
+    } else {
+      newIndex = selectedIndex === 0 ? suggestions.length - 1 : selectedIndex - 1;
+    }
+
+    // Create a completely new object to ensure React detects the change
+    this.functionSuggestions = {
+      isActive: true,
+      suggestions: [...suggestions], // Create a new array
+      selectedIndex: newIndex,
+      triggerPosition: { ...this.functionSuggestions.triggerPosition } // Create a new position object
+    };
+  }
+
+  getSelectedFunctionSuggestion(): string | null {
+    if (!this.functionSuggestions.isActive || this.functionSuggestions.suggestions.length === 0) {
+      return null;
+    }
+    return this.functionSuggestions.suggestions[this.functionSuggestions.selectedIndex];
+  }
+
+  insertFunctionSuggestion(suggestion: string): void {
+    if (!this.cell) {
+      return;
+    }
+
+    const value = this.cell.text;
+    const cursorPosition = this.cell.cursorStart;
+    
+    // Find the partial function name to replace
+    const beforeCursor = value.substring(0, cursorPosition);
+    const afterEquals = beforeCursor.substring(1);
+    const tokens = afterEquals.split(/([^A-Za-z0-9_])/);
+    const lastTokenIndex = tokens.length - 1;
+    
+    if (lastTokenIndex >= 0 && /^[A-Za-z][A-Za-z0-9_]*$/.test(tokens[lastTokenIndex])) {
+      // Calculate the position where the partial function starts
+      const partialStart = beforeCursor.length - tokens[lastTokenIndex].length;
+      
+      // Replace the partial function with the selected suggestion
+      const newValue = value.substring(0, partialStart) + suggestion + '(' + value.substring(cursorPosition);
+      const newCursorPosition = partialStart + suggestion.length + 1; // Position cursor after the opening parenthesis
+      
+      // Update the cell state
+      this.cell.text = newValue;
+      this.cell.cursorStart = newCursorPosition;
+      this.cell.cursorEnd = newCursorPosition;
+      
+      // Make sure we're in edit mode
+      this.cell.mode = "edit";
+    }
+    
+    // Always deactivate suggestions after inserting a function
+    this.deactivateFunctionSuggestions();
+  }
+
+  handleFocusChange(): void {
+    // Deactivate function suggestions when focus changes
+    this.deactivateFunctionSuggestions();
   }
 }

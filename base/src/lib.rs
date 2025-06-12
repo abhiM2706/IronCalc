@@ -37,6 +37,7 @@ pub mod new_empty;
 pub mod number_format;
 pub mod types;
 pub mod worksheet;
+pub mod function_suggestions;
 
 mod actions;
 mod arithmetic;

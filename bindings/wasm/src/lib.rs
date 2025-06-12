@@ -1,4 +1,5 @@
 use serde::Serialize;
+use ironcalc_base::function_suggestions::FunctionSuggester;
 use wasm_bindgen::{
     prelude::{wasm_bindgen, JsError},
     JsValue,
@@ -671,5 +672,12 @@ impl Model {
         self.model
             .delete_defined_name(name, scope)
             .map_err(|e| to_js_error(e.to_string()))
+    }
+
+    #[wasm_bindgen(js_name = "suggestFunctions")]
+    pub fn suggest_functions(&mut self, input: &str) -> Result<JsValue, JsError> {
+        let suggester = FunctionSuggester::new();
+        let suggestions = suggester.suggest(input);
+        serde_wasm_bindgen::to_value(&suggestions).map_err(JsError::from)
     }
 }
