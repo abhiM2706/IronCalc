@@ -1537,4 +1537,21 @@ export default class WorksheetCanvas {
     this.drawActiveRanges(topLeftCell, bottomRightCell);
     this.drawCutRange();
   }
+
+  getScrollPosition(): { left: number; top: number } {
+    const selectedSheet = this.model.getSelectedSheet();
+    const view = this.model.getSelectedView();
+    
+    let left = 0;
+    for (let column = 1; column < view.left_column; column++) {
+      left += this.getColumnWidth(selectedSheet, column);
+    }
+    
+    let top = 0;
+    for (let row = 1; row < view.top_row; row++) {
+      top += this.getRowHeight(selectedSheet, row);
+    }
+    
+    return { left, top };
+  }
 }

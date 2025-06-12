@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { theme } from "../../theme";
 import type { WorkbookState } from "../workbookState";
 
@@ -15,7 +15,9 @@ const FunctionSuggestions = ({
   worksheetCanvas 
 }: FunctionSuggestionsProps) => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const suggestionsState = workbookState.getFunctionSuggestions();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // Handle clicks outside the suggestions box
   useEffect(() => {
@@ -46,6 +48,39 @@ const FunctionSuggestions = ({
       }
     }
   }, [suggestionsState.selectedIndex, suggestionsState.isActive]);
+
+  // Add scroll event handler
+  useEffect(() => {
+    const handleScroll = (event: Event) => {
+      // Prevent scroll event from propagating to parent
+      event.stopPropagation();
+    };
+
+    const container = suggestionsRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll, { passive: false });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
+  // Add an effect to listen for state changes
+  useEffect(() => {
+    const checkState = () => {
+      const currentState = workbookState.getFunctionSuggestions();
+      if (currentState.selectedIndex !== suggestionsState.selectedIndex) {
+        setForceUpdate(prev => prev + 1);
+      }
+    };
+
+    // Check state periodically
+    const interval = setInterval(checkState, 50);
+    return () => clearInterval(interval);
+  }, [workbookState, suggestionsState.selectedIndex]);
 
   if (!suggestionsState.isActive || suggestionsState.suggestions.length === 0) {
     return null;
@@ -95,6 +130,9 @@ const FunctionSuggestions = ({
             const newState = { ...suggestionsState, selectedIndex: index };
             workbookState.setFunctionSuggestions(newState);
           }}
+          onMouseLeave={() => {
+            setHoveredIndex(null);
+          }}
         >
           {suggestion}
         </SuggestionItem>
@@ -114,6 +152,15 @@ const Container = styled("div")`
   z-index: 1500; // Higher z-index to appear above everything
   min-width: 180px;
   max-width: 300px;
+  
+  // Add these styles to ensure proper scrolling behavior
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  
+  // Prevent scroll events from propagating to parent
+  &:hover {
+    overflow-y: auto;
+  }
 `;
 
 const SuggestionItem = styled("div")<{ isSelected: boolean }>`

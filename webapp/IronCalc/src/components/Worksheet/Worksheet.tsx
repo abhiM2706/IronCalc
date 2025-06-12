@@ -265,6 +265,23 @@ const Worksheet = forwardRef(
       if (!scrollElement.current || !worksheetCanvas.current) {
         return;
       }
+      
+      // Prevent scrolling if function suggestions are active
+      const suggestionsState = workbookState.getFunctionSuggestions();
+      if (suggestionsState.isActive) {
+        // Restore the previous scroll position
+        if (ignoreScrollEventRef.current) {
+          return;
+        }
+        ignoreScrollEventRef.current = true;
+        scrollElement.current.scrollLeft = worksheetCanvas.current.getScrollPosition().left;
+        scrollElement.current.scrollTop = worksheetCanvas.current.getScrollPosition().top;
+        setTimeout(() => {
+          ignoreScrollEventRef.current = false;
+        }, 0);
+        return;
+      }
+
       if (ignoreScrollEventRef.current) {
         // Programmatic scroll ignored
         return;
