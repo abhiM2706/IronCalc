@@ -27,6 +27,7 @@ import type { Cell } from "../types";
 import type { WorkbookState } from "../workbookState";
 import CellContextMenu from "./CellContextMenu";
 import usePointer from "./usePointer";
+import FunctionSuggestions from "../FunctionSuggestions/FunctionSuggestions";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -222,6 +223,10 @@ const Worksheet = forwardRef(
       onCellSelected: (cell: Cell, event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
+        
+        // Deactivate function suggestions when selecting a new cell
+        workbookState.deactivateFunctionSuggestions();
+        
         model.setSelectedCell(cell.row, cell.column);
         refresh();
       },
@@ -260,6 +265,23 @@ const Worksheet = forwardRef(
       if (!scrollElement.current || !worksheetCanvas.current) {
         return;
       }
+      
+      // Prevent scrolling if function suggestions are active
+      const suggestionsState = workbookState.getFunctionSuggestions();
+      if (suggestionsState.isActive) {
+        // Restore the previous scroll position
+        if (ignoreScrollEventRef.current) {
+          return;
+        }
+        ignoreScrollEventRef.current = true;
+        scrollElement.current.scrollLeft = worksheetCanvas.current.getScrollPosition().left;
+        scrollElement.current.scrollTop = worksheetCanvas.current.getScrollPosition().top;
+        setTimeout(() => {
+          ignoreScrollEventRef.current = false;
+        }, 0);
+        return;
+      }
+
       if (ignoreScrollEventRef.current) {
         // Programmatic scroll ignored
         return;
@@ -390,6 +412,20 @@ const Worksheet = forwardRef(
           }}
           row={model.getSelectedView().row}
           column={columnNameFromNumber(model.getSelectedView().column)}
+        />
+        <FunctionSuggestions
+          workbookState={workbookState}
+          worksheetCanvas={worksheetCanvas.current}
+          onSuggestionSelect={(suggestion) => {
+            // Handle suggestion selection - we'll need to communicate this back to the Editor
+            const editingCell = workbookState.getEditingCell();
+            if (editingCell) {
+              // You might want to emit an event or use a callback mechanism here
+              // For now, we'll add a method to workbookState to handle this
+              workbookState.insertFunctionSuggestion(suggestion);
+              refresh();
+            }
+          }}
         />
       </Wrapper>
     );

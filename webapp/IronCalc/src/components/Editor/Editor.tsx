@@ -118,6 +118,55 @@ const Editor = (options: EditorOptions) => {
     }
   });
 
+  const shouldShowFunctionSuggestions = (value: string, cursorPosition: number): boolean => {
+    // Check if we're in a formula context (starts with =)
+    if (!value.startsWith('=')) {
+      return false;
+    }
+
+    // Find the current context around the cursor
+    const beforeCursor = value.substring(0, cursorPosition);
+    const afterEquals = beforeCursor.substring(1); // Remove the '=' sign
+    
+    // If there's an open parenthesis before the cursor, don't show suggestions
+    if (afterEquals.includes('(')) {
+      return false;
+    }
+    
+    // Check if we're at a position where a function name could be typed
+    // This is a simple heuristic - you might want to make it more sophisticated
+    const lastToken = afterEquals.split(/[^A-Za-z0-9_]/).pop() || '';
+    
+    // Show suggestions if we have at least one character after = or after operators
+    return lastToken.length > 0 && /^[A-Za-z][A-Za-z0-9_]*$/.test(lastToken);
+  };
+
+  const updateFunctionSuggestions = (value: string, cursorPosition: number) => {
+    if (!shouldShowFunctionSuggestions(value, cursorPosition)) {
+      workbookState.deactivateFunctionSuggestions();
+      return;
+    }
+
+    // Extract the current partial function name
+    const beforeCursor = value.substring(0, cursorPosition);
+    const afterEquals = beforeCursor.substring(1);
+    const lastToken = afterEquals.split(/[^A-Za-z0-9_]/).pop() || '';
+
+    if (lastToken.length > 0) {
+      // Get suggestions from the model
+      const suggestions = model.suggestFunctions(lastToken);
+      
+      if (suggestions.length > 0) {
+        // We don't need to calculate position here anymore since it's handled in the worksheet
+        workbookState.activateFunctionSuggestions(suggestions, { x: 0, y: 0 });
+      } else {
+        workbookState.deactivateFunctionSuggestions();
+      }
+    } else {
+      workbookState.deactivateFunctionSuggestions();
+    }
+  };
+
   const onChange = useCallback(() => {
     const textarea = textareaRef.current;
     const cell = workbookState.getEditingCell();
@@ -139,11 +188,35 @@ const Editor = (options: EditorOptions) => {
     workbookState.setActiveRanges(styledFormula.activeRanges);
     setText(cell.text);
 
-    onTextUpdated();
+    // Check if we should deactivate function suggestions
+    const shouldDeactivateSuggestions = (() => {
+      // If there's an open parenthesis, deactivate suggestions
+      if (value.includes('(')) {
+        return true;
+      }
+      
+      // If the cursor is after a function name (followed by an open parenthesis)
+      const beforeCursor = value.substring(0, textarea.selectionStart);
+      if (beforeCursor.includes('(')) {
+        return true;
+      }
+      
+      // If the text doesn't start with '=', deactivate suggestions
+      if (!value.startsWith('=')) {
+        return true;
+      }
+      
+      return false;
+    })();
+    
+    if (shouldDeactivateSuggestions) {
+      workbookState.deactivateFunctionSuggestions();
+    } else {
+      // Only update function suggestions if we're not deactivating them
+      updateFunctionSuggestions(value, textarea.selectionStart);
+    }
 
-    // Should we stop propagations?
-    // event.stopPropagation();
-    // event.preventDefault();
+    onTextUpdated();
   }, [workbookState, model, onTextUpdated, type]);
 
   const onBlur = useCallback(() => {
@@ -153,6 +226,10 @@ const Editor = (options: EditorOptions) => {
       // or vice versa, do nothing
       return;
     }
+    
+    // Deactivate function suggestions when the editor loses focus
+    workbookState.deactivateFunctionSuggestions();
+    
     if (textareaRef.current) {
       textareaRef.current.value = "";
     }
