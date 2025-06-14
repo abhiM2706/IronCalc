@@ -97,6 +97,7 @@ export interface FunctionSuggestionsState {
   suggestions: string[];
   selectedIndex: number;
   triggerPosition: { x: number; y: number };
+  selectionMode: 'keyboard' | 'mouse' | null;
 }
 
 export class WorkbookState {
@@ -116,7 +117,8 @@ export class WorkbookState {
       isActive: false,
       suggestions: [],
       selectedIndex: 0,
-      triggerPosition: { x: 0, y: 0 }
+      triggerPosition: { x: 0, y: 0 },
+      selectionMode: null
     };
   }
 
@@ -210,7 +212,8 @@ export class WorkbookState {
       isActive: true,
       suggestions,
       selectedIndex: 0,
-      triggerPosition: position
+      triggerPosition: position,
+      selectionMode: 'keyboard'
     };
   }
 
@@ -219,7 +222,8 @@ export class WorkbookState {
       isActive: false,
       suggestions: [],
       selectedIndex: 0,
-      triggerPosition: { x: 0, y: 0 }
+      triggerPosition: { x: 0, y: 0 },
+      selectionMode: null
     };
   }
 
@@ -237,12 +241,11 @@ export class WorkbookState {
       newIndex = selectedIndex === 0 ? suggestions.length - 1 : selectedIndex - 1;
     }
 
-    // Create a completely new object to ensure React detects the change
     this.functionSuggestions = {
-      isActive: true,
-      suggestions: [...suggestions], // Create a new array
+      ...this.functionSuggestions,
+      suggestions: [...suggestions],
       selectedIndex: newIndex,
-      triggerPosition: { ...this.functionSuggestions.triggerPosition } // Create a new position object
+      selectionMode: 'keyboard' as const
     };
   }
 
@@ -291,5 +294,15 @@ export class WorkbookState {
   handleFocusChange(): void {
     // Deactivate function suggestions when focus changes
     this.deactivateFunctionSuggestions();
+  }
+
+  setFunctionSuggestionsMode(mode: 'keyboard' | 'mouse' | null): void {
+    if (this.functionSuggestions.isActive) {
+      this.functionSuggestions = {
+        ...this.functionSuggestions,
+        selectionMode: mode,
+        selectedIndex: this.functionSuggestions.selectedIndex
+      };
+    }
   }
 }

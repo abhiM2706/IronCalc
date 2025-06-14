@@ -23,6 +23,7 @@ impl FunctionSuggester {
         self.function_names
             .iter() 
             .filter(|name: &&String| name.starts_with(&input_upper))
+           // .take(10)
             .cloned()
             .collect()
     }

@@ -82,6 +82,13 @@ const FunctionSuggestions = ({
     return () => clearInterval(interval);
   }, [workbookState, suggestionsState.selectedIndex]);
 
+  // Add handler for mouse movement within the container
+  const handleContainerMouseMove = () => {
+    if (suggestionsState.selectionMode !== 'mouse') {
+      workbookState.setFunctionSuggestionsMode('mouse');
+    }
+  };
+
   if (!suggestionsState.isActive || suggestionsState.suggestions.length === 0) {
     return null;
   }
@@ -120,6 +127,7 @@ const FunctionSuggestions = ({
         left: cellX,
         top: cellY,
       }}
+      onMouseMove={handleContainerMouseMove}
     >
       {suggestionsState.suggestions.map((suggestion, index) => (
         <SuggestionItem
@@ -127,11 +135,14 @@ const FunctionSuggestions = ({
           isSelected={index === suggestionsState.selectedIndex}
           onClick={() => onSuggestionSelect(suggestion)}
           onMouseEnter={() => {
-            const newState = { ...suggestionsState, selectedIndex: index };
+            const newState = { 
+              ...suggestionsState, 
+              selectedIndex: index
+            };
             workbookState.setFunctionSuggestions(newState);
           }}
           onMouseLeave={() => {
-            setHoveredIndex(null);
+            workbookState.setFunctionSuggestionsMode('keyboard');
           }}
         >
           {suggestion}

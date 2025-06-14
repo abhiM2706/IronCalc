@@ -25,6 +25,11 @@ export const useKeyDown = (
       const suggestionState = workbookState.getFunctionSuggestions();
       
       if (suggestionState.isActive) {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault();
+          return;
+        }
+        
         if (event.key === 'ArrowDown') {
           event.preventDefault();
           workbookState.updateFunctionSuggestionsSelection('down');
