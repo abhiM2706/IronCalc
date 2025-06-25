@@ -26,8 +26,8 @@ export const useKeyDown = (
       
       if (suggestionState.isActive) {
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-          event.preventDefault();
-          return;
+          workbookState.deactivateFunctionSuggestions();
+          
         }
         
         if (event.key === 'ArrowDown') {
@@ -43,6 +43,7 @@ export const useKeyDown = (
         }
         
         if (event.key === 'Enter' || event.key === 'Tab') {
+          console.log("Enter or Tab");
           event.preventDefault();
           const selectedSuggestion = workbookState.getSelectedFunctionSuggestion();
           if (selectedSuggestion) {
@@ -62,6 +63,7 @@ export const useKeyDown = (
               
               // Trigger any necessary updates
               onTextUpdated();
+              console.log("updated cell", cell);
             }
           }
           return;

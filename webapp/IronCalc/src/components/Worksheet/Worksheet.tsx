@@ -414,26 +414,56 @@ const Worksheet = forwardRef(
           column={columnNameFromNumber(model.getSelectedView().column)}
         />
         <FunctionSuggestions
-          workbookState={workbookState}
-          worksheetCanvas={worksheetCanvas.current}
-          onSuggestionSelect={(suggestion) => {
-            // Handle suggestion selection - we'll need to communicate this back to the Editor
-            const editingCell = workbookState.getEditingCell();
-            if (editingCell) {
-              // You might want to emit an event or use a callback mechanism here
-              // For now, we'll add a method to workbookState to handle this
-              workbookState.insertFunctionSuggestion(suggestion);
-              refresh();
-            }
-          }}
-        />
+        workbookState={workbookState}
+        worksheetCanvas={worksheetCanvas.current}
+        onSuggestionSelect={(suggestion) => {
+          // Insert the function suggestion
+          workbookState.insertFunctionSuggestion(suggestion);
+          
+          // Get the updated cell and ensure it stays in edit mode
+          const updatedCell = workbookState.getEditingCell();
+          
+          if (updatedCell) {
+            // Force the cell to stay in edit mode
+            updatedCell.mode = "edit";
+            updatedCell.focus = "cell";
+            workbookState.setEditingCell(updatedCell);
+          }
+          
+          // Refresh the UI
+          props.refresh();
+          
+          // Use requestAnimationFrame for better timing
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              const textarea = document.querySelector("textarea");
+              if (textarea) {
+                // Get the current cell state
+                const cell = workbookState.getEditingCell();
+                if (cell) {
+                  // Set the textarea value to match the cell
+                  textarea.value = cell.text;
+                  
+                  // Focus the textarea
+                  textarea.focus();
+                  
+                  // Set cursor position
+                  textarea.setSelectionRange(cell.cursorStart, cell.cursorEnd);
+                  
+                  // Trigger input event to sync state
+                  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }
+            }, 5000); // Very small delay
+          });
+        }}
+                />
       </Wrapper>
     );
   },
 );
 
-const Spacer = styled("div")`
-  position: absolute;
+const Spacer = styled("div")`  position: absolute;
   height: 5000px;
   width: 5000px;
 `;
@@ -564,3 +594,4 @@ const EditorWrapper = styled("div")`
 `;
 
 export default Worksheet;
+
