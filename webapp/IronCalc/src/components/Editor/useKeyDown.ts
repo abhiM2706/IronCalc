@@ -43,7 +43,7 @@ export const useKeyDown = (
         }
         
         if (event.key === 'Enter' || event.key === 'Tab') {
-          console.log("Enter or Tab");
+          
           event.preventDefault();
           const selectedSuggestion = workbookState.getSelectedFunctionSuggestion();
           if (selectedSuggestion) {
@@ -63,7 +63,6 @@ export const useKeyDown = (
               
               // Trigger any necessary updates
               onTextUpdated();
-              console.log("updated cell", cell);
             }
           }
           return;

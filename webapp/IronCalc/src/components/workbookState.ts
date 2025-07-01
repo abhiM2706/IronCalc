@@ -213,7 +213,7 @@ export class WorkbookState {
       suggestions,
       selectedIndex: 0,
       triggerPosition: position,
-      selectionMode: 'mouse'
+      selectionMode: 'keyboard'
     };
   }
 
@@ -256,7 +256,7 @@ export class WorkbookState {
     return this.functionSuggestions.suggestions[this.functionSuggestions.selectedIndex];
   }
 
-  insertFunctionSuggestion(suggestion: string): void { 
+  insertFunctionSuggestion(suggestion: string): void {
     if (!this.cell) {
       return;
     }
@@ -285,19 +285,15 @@ export class WorkbookState {
       
       // Make sure we're in edit mode
       this.cell.mode = "edit";
-      this.cell.focus = "cell";
-
-      this.setEditingCell(this.cell);
-
     }
     
-    // Always deactivate suggestions after inserting a function
-    this.deactivateFunctionSuggestions(); 
+    // Don't deactivate suggestions here - let the caller handle it
+    this.deactivateFunctionSuggestions();
   }
 
   handleFocusChange(): void {
     // Deactivate function suggestions when focus changes
-    //this.deactivateFunctionSuggestions();
+    this.deactivateFunctionSuggestions();
   }
 
   setFunctionSuggestionsMode(mode: 'keyboard' | 'mouse' | null): void {
