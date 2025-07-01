@@ -165,6 +165,7 @@ const Editor = (options: EditorOptions) => {
     } else {
       workbookState.deactivateFunctionSuggestions();
     }
+    //onTextUpdated();
   };
 
   const onChange = useCallback(() => {

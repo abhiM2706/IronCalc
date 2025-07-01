@@ -414,19 +414,33 @@ const Worksheet = forwardRef(
           column={columnNameFromNumber(model.getSelectedView().column)}
         />
         <FunctionSuggestions
-          workbookState={workbookState}
-          worksheetCanvas={worksheetCanvas.current}
-          onSuggestionSelect={(suggestion) => {
-            // Handle suggestion selection - we'll need to communicate this back to the Editor
-            const editingCell = workbookState.getEditingCell();
-            if (editingCell) {
-              // You might want to emit an event or use a callback mechanism here
-              // For now, we'll add a method to workbookState to handle this
-              workbookState.insertFunctionSuggestion(suggestion);
-              refresh();
-            }
-          }}
-        />
+        workbookState={workbookState}
+        worksheetCanvas={worksheetCanvas.current}
+        onSuggestionSelect={(suggestion) => {
+          const editingCell = workbookState.getEditingCell();
+          if (editingCell) {
+            workbookState.insertFunctionSuggestion(suggestion);
+            
+            // Trigger a refresh to update the Editor component
+            refresh();
+            
+            // Use a longer delay to ensure the Editor component has fully updated
+            setTimeout(() => {
+              const textarea = document.querySelector("textarea") as HTMLTextAreaElement;
+              const updatedCell = workbookState.getEditingCell();
+              if (textarea && updatedCell) {
+                // Ensure the textarea has the correct text and cursor position
+                textarea.value = updatedCell.text;
+                textarea.setSelectionRange(
+                  updatedCell.cursorStart,
+                  updatedCell.cursorEnd
+                );
+                textarea.focus();
+              }
+            }, 10); // Small delay to ensure DOM updates are complete
+          }
+        }}
+      />
       </Wrapper>
     );
   },

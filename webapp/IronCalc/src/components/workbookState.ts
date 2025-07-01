@@ -287,7 +287,7 @@ export class WorkbookState {
       this.cell.mode = "edit";
     }
     
-    // Always deactivate suggestions after inserting a function
+    // Don't deactivate suggestions here - let the caller handle it
     this.deactivateFunctionSuggestions();
   }
 
