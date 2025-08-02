@@ -24,36 +24,55 @@ function App() {
 
   useEffect(() => {
     async function start() {
-      await init();
-      const queryString = window.location.search;
-      const urlParams = new URLSearchParams(queryString);
-      const modelHash = urlParams.get("model");
-      const exampleFilename = urlParams.get("example");
-      // If there is a model name ?model=modelHash we try to load it
-      // if there is not, or the loading failed we load an empty model
-      if (modelHash) {
-        // Get a remote model
-        try {
-          const model_bytes = await get_model(modelHash);
-          const importedModel = Model.from_bytes(model_bytes);
-          localStorage.removeItem("selected");
-          setModel(importedModel);
-        } catch (e) {
-          alert("Model not found, or failed to load");
+      try {
+        console.log('Starting IronCalc initialization...');
+        await init();
+        console.log('IronCalc initialization completed');
+        
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const modelHash = urlParams.get("model");
+        const exampleFilename = urlParams.get("example");
+        
+        console.log('URL params:', { modelHash, exampleFilename });
+        
+        // If there is a model name ?model=modelHash we try to load it
+        // if there is not, or the loading failed we load an empty model
+        if (modelHash) {
+          // Get a remote model
+          try {
+            console.log('Loading remote model:', modelHash);
+            const model_bytes = await get_model(modelHash);
+            const importedModel = Model.from_bytes(model_bytes);
+            localStorage.removeItem("selected");
+            setModel(importedModel);
+            console.log('Remote model loaded successfully');
+          } catch (e) {
+            console.error('Failed to load remote model:', e);
+            alert("Model not found, or failed to load");
+          }
+        } else if (exampleFilename) {
+          try {
+            console.log('Loading example file:', exampleFilename);
+            const model_bytes = await get_documentation_model(exampleFilename);
+            const importedModel = Model.from_bytes(model_bytes);
+            localStorage.removeItem("selected");
+            setModel(importedModel);
+            console.log('Example file loaded successfully');
+          } catch (e) {
+            console.error('Failed to load example file:', e);
+            alert("Example file not found, or failed to load");
+          }
+        } else {
+          // try to load from local storage
+          console.log('Loading from local storage or creating new model');
+          const newModel = loadModelFromStorageOrCreate();
+          setModel(newModel);
+          console.log('Model loaded/created successfully');
         }
-      } else if (exampleFilename) {
-        try {
-          const model_bytes = await get_documentation_model(exampleFilename);
-          const importedModel = Model.from_bytes(model_bytes);
-          localStorage.removeItem("selected");
-          setModel(importedModel);
-        } catch (e) {
-          alert("Example file not found, or failed to load");
-        }
-      } else {
-        // try to load from local storage
-        const newModel = loadModelFromStorageOrCreate();
-        setModel(newModel);
+      } catch (error) {
+        console.error('Error during startup:', error);
+        alert('Failed to initialize IronCalc: ' + error);
       }
     }
     start();

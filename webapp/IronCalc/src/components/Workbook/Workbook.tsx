@@ -28,6 +28,8 @@ import {
 } from "../util";
 import type { WorkbookState } from "../workbookState";
 import useKeyboardNavigation from "./useKeyboardNavigation";
+import { testCellRelationships, simpleTest } from "../cellRelationships";
+import CellRelationshipsViewer from "../CellRelationshipsViewer";
 
 const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
   const { model, workbookState } = props;
@@ -357,6 +359,19 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
   }, [model]);
 
   const style = getCellStyle();
+
+  const [showRelationshipsViewer, setShowRelationshipsViewer] = useState(false);
+
+  const handleTestRelationships = () => {
+    console.log("Testing relationships...");
+    simpleTest(model);
+    testCellRelationships(model);
+    // Force the viewer to reload by closing and reopening
+    setShowRelationshipsViewer(false);
+    setTimeout(() => {
+      setShowRelationshipsViewer(true);
+    }, 100);
+  };
 
   return (
     <Container
@@ -747,6 +762,29 @@ const Workbook = (props: { model: Model; workbookState: WorkbookState }) => {
           model.hideSheet(selectedSheet);
           setRedrawId((value) => value + 1);
         }}
+      />
+      <button
+        onClick={handleTestRelationships}
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          zIndex: 1000,
+          padding: '8px 16px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        Test Relationships
+      </button>
+      
+      <CellRelationshipsViewer
+        model={model}
+        isOpen={showRelationshipsViewer}
+        onClose={() => setShowRelationshipsViewer(false)}
       />
     </Container>
   );

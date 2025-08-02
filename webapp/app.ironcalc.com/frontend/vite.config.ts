@@ -10,5 +10,25 @@ export default defineConfig({
       // Allow serving files from one level up to the project root
       allow: ['../../../'],
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/models': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      }
+    },
   },
+  optimizeDeps: {
+    exclude: ['@ironcalc/wasm']
+  },
+  build: {
+    rollupOptions: {
+      external: ['@ironcalc/wasm']
+    }
+  }
 })
